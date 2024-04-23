@@ -14,10 +14,12 @@ window.onload = function() {
       SwaggerUIBundle.plugins.DownloadUrl
     ],
     layout: "StandaloneLayout",
-    requestInterceptor: function(req) {   
-      req.url = proxyUrl + '/' + req.url // will change the URL used.
-      debugger;
-      return req;
+    requestInterceptor: function(req) {
+      if (!req.url.includes('http')) {
+        return req;
+      } else {
+        req.url = proxyUrl + '/' + req.url // will change the URL used.
+      }
     },
   });
 };

@@ -15,28 +15,27 @@ const app = express()
 
 console.log(`SWAGGER UI PATH :: ${pathToSwaggerUi}` )
 
-const indexContent = fs.readFileSync(`${pathToSwaggerUi}/index.html`)
-  .toString()
-  .replace("./swagger-initializer.js", "/swagger-init/swagger-initializer.js");
+// const indexContent = fs.readFileSync(`${pathToSwaggerUi}/index.html`)
+//   .toString()
+//   .replace("./swagger-initializer.js", "/swagger-init/swagger-initializer.js");
+
+
+// fs.writeFile(`${pathToSwaggerUi}/index.html`, indexContent, err => {
+//   if (err) {
+//     console.error(err);
+//   } else {
+//     // file written successfully
+//     console.info(`file written successfully `);
+//   }
+// });
 
 const swagglesInit = fs.readFileSync(`./swagger-init/swagger-initializer.js`)
   .toString();
 
-fs.writeFile(`${pathToSwaggerUi}/index.html`, indexContent, err => {
-  if (err) {
-    console.error(err);
-  } else {
-    // file written successfully
-    console.info(`file written successfully `);
-  }
-});
-
 app.get("/swagger-init/swagger-initializer.js", (req, res) => {
-  // console.info(`LOADING custom init - ${indexContent}`)
   res.setHeader('content-type', 'text/plain; charset=UTF-8');
   res.send(swagglesInit)
 })
-// app.get("/index.html", (req, res) => res.send(indexContent)) // you need to do this since the line below serves `index.html` at both routes
 
 let proxy = cors_proxy.createServer({
   originWhitelist: [], // Allow all origins
@@ -47,7 +46,11 @@ let proxy = cors_proxy.createServer({
 /* Attach our cors proxy to the existing API on the /proxy endpoint. */
 app.get('/p/:proxyUrl*', (req, res) => {
   console.info(`URL to proxy - ${req.url}`)
-  req.url = req.url.replace('/p/', '/'); // Strip '/proxy' from the front of the URL, else the proxy won't work.
+  // if (!req.url.includes('http')){
+  //   req.url = `http://${host}:${port}/${req.url}`
+  // }
+  req.url = req.url.replace('/p/', '');
+  console.info(`URL edited - ${req.url}`)
   proxy.emit('request', req, res);
 });
 
